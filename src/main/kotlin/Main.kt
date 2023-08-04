@@ -14,7 +14,7 @@ import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.AtAll
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.utils.BotConfiguration
-import org.slf4j.LoggerFactory
+import org.apache.logging.log4j.LogManager
 import outlineDataModel.DocumentPresentation
 import outlineDataModel.WebhookBody
 import java.io.FileInputStream
@@ -59,13 +59,13 @@ fun Application.sealingClubBotServer() {
     routing {
         post("/"){
             val post = call.receiveText()
-            val logger = LoggerFactory.getLogger("${call.request.httpMethod.value} ${call.request.uri}")
+            val logger = LogManager.getLogger("${call.request.httpMethod.value} ${call.request.uri}")
             logger.info("received '$post'.")
             call.respondText("received '$post'. hello!")
         }
         post("/documents.publish") {
             val sign = call.request.headers["Outline-Signature"]
-            val logger = LoggerFactory.getLogger("${call.request.httpMethod.value} ${call.request.uri}")
+            val logger = LogManager.getLogger("${call.request.httpMethod.value} ${call.request.uri}")
             logger.info("Signature: $sign")
 
             val body = call.receiveText()

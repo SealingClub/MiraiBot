@@ -14,8 +14,11 @@ repositories {
 }
 
 dependencies {
-    implementation("org.slf4j:slf4j-api:1.7.30")
-    implementation("org.slf4j:slf4j-simple:1.7.30")
+    implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
+    api("net.mamoe", "mirai-logging-log4j2", "2.15.0")
     api("net.mamoe", "mirai-core", "2.15.0")
     implementation("io.ktor:ktor-server-core:2.3.3")
     implementation("io.ktor:ktor-server-netty:2.3.3")
