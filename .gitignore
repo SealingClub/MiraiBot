@@ -45,3 +45,4 @@ bin/
 
 ### Generate files ###
 config.properties
+device.json
