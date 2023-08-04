@@ -44,13 +44,15 @@ suspend fun main() {
         properties.store(FileOutputStream(configPath), null)
     }
 
-    val http = embeddedServer(Netty, 19198, module = Application::sealingClubBotServer)
+    val address = properties.getProperty(listenAddress)
+    val port = properties.getInt(listenPort)
+    val http = embeddedServer(Netty, host = address, port = port, module = Application::sealingClubBotServer)
     http.start()
 
     bot.login()
     if(!bot.isOnline) return
 
-    mainGroup.set(bot.groups[834898330])
+    mainGroup.set(bot.groups[properties.getLong(mainGroupNum)])
 }
 
 fun Application.sealingClubBotServer() {
