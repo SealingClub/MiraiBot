@@ -1,22 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="warn">
+    <Properties>
+        <Property name="time">%d{HH:mm:ss.SSS}</Property>
+        <Property name="pid/thread">%pid/%8.8t</Property>
+        <Property name="logger">%-20.20logger{5.}</Property>
+        <Property name="level">%-5p</Property>
+        <Property name="message">%msg%n</Property>
+        <Property name="normalLogging">${time} [%sn][${pid/thread}] ${logger} ${level} - ${message}</Property>
+
+        <Property name="highlightColor">
+            {
+            FATAL=bright red,
+            ERROR=red,
+            WARN=bright yellow,
+            INFO=green,
+            DEBUG=cyan,
+            TRACE=Bright Black
+            }
+        </Property>
+        <Property name="clr_time">%style{${time}}{normal}</Property>
+        <Property name="clr_pid/thread">%style{%pid}{bright magenta}/%style{%8.8t}{bright cyan}</Property>
+        <Property name="clr_logger">%style{${logger}}{bright blue}</Property>
+        <Property name="clr_level">%highlight{${level}}${highlightColor}</Property>
+        <Property name="clr_message">%highlight{%msg%n}${highlightColor}</Property>
+        <Property name="colorfulLogging">
+            ${clr_time} [%sn][${clr_pid/thread}] ${clr_logger} ${clr_level} %style{-}{bright} ${clr_message}
+        </Property>
+    </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout disableAnsi="false" pattern="${colorfulLogging}"/>
         </Console>
-        <RollingFile name="RollingFile" fileName="logs/sealing_club_bot.log" filePattern="logs/sealing_club_bot-%d{yyyy-MM-dd}.log">
-            <PatternLayout>
-                <pattern>%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
-            </PatternLayout>
+        <RollingFile name="RollingFile"
+                     fileName="logs/sealing_club_bot.log"
+                     filePattern="logs/sealing_club_bot-%d{yyyy-MM-dd}.log"
+        >
+            <PatternLayout disableAnsi="true" pattern="${normalLogging}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="RollingFileColorful"
+                     fileName="logs/sealing_club_bot.colorful.log"
+                     filePattern="logs/sealing_club_bot-%d{yyyy-MM-dd}.colorful.log"
+        >
+            <PatternLayout disableAnsi="false" pattern="${colorfulLogging}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="ALL">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
+            <AppenderRef ref="RollingFileColorful"/>
         </Root>
     </Loggers>
 </Configuration>
