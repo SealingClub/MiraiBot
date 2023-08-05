@@ -1,6 +1,7 @@
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -23,6 +24,8 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 const val configPath = "./config.properties"
 val properties = Properties().apply { defaultProperties() }
@@ -69,6 +72,11 @@ fun Application.sealingClubBotServer() {
             logger.info("Signature: $sign")
 
             val body = call.receiveText()
+            if (!verifySignature(sign, body)) {
+                logger.warn("Unverified signature from '${call.request.headers["X-Real-IP"]}'")
+                return@post
+            }
+
             val data = Json.decodeFromString<WebhookBody<DocumentPresentation>>(body)
             if (data.event != "documents.publish") return@post
             val model = data.payload.model
@@ -85,4 +93,25 @@ fun Application.sealingClubBotServer() {
             mainGroup.get().sendMessage(message)
         }
     }
+}
+
+@OptIn(ExperimentalStdlibApi::class)
+fun verifySignature(sign: String?, text: String): Boolean {
+    if (sign == null) return false
+    val secret = properties.getProperty(signingSecret)
+    if (secret.isEmpty()) return false
+
+    val (timestamp, signature) = sign
+        .split(',')
+        .map { it.substring(2) }
+        .let { it[0] to it[1] }
+
+    val algo = "HmacSHA256"
+    val mac = Mac.getInstance(algo)
+    mac.init(SecretKeySpec(secret.toByteArray(), algo))
+    mac.update("$timestamp.".toByteArray())
+    mac.update(text.toByteArray())
+    val hash = mac.doFinal().toHexString()
+
+    return signature == hash
 }
