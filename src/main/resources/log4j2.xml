@@ -6,7 +6,7 @@
         <Property name="logger">%-20.20logger{5.}</Property>
         <Property name="level">%-5p</Property>
         <Property name="message">%msg%n</Property>
-        <Property name="normalLogging">${time} [%sn][${pid/thread}] ${logger} ${level} - ${message}</Property>
+        <Property name="normalLogging">${time} [${pid/thread}] ${logger} ${level} - ${message}</Property>
 
         <Property name="highlightColor">
             {
@@ -24,7 +24,7 @@
         <Property name="clr_level">%highlight{${level}}${highlightColor}</Property>
         <Property name="clr_message">%highlight{%msg%n}${highlightColor}</Property>
         <Property name="colorfulLogging">
-            ${clr_time} [%sn][${clr_pid/thread}] ${clr_logger} ${clr_level} %style{-}{bright} ${clr_message}
+            ${clr_time} [${clr_pid/thread}] ${clr_logger} ${clr_level} %style{-}{bright} ${clr_message}
         </Property>
     </Properties>
     <Appenders>
