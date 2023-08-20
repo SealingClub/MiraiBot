@@ -23,7 +23,7 @@ data class DocumentPresentation(
     val templateId: String?,
     val collaboratorIds: List<String>,
     val revision: Int,
-//    val insightsEnabled: Boolean,
+    val insightsEnabled: Boolean,
     val fullWidth: Boolean,
     val collectionId: String?,
     val parentDocumentId: String?,
