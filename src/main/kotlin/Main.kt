@@ -35,7 +35,7 @@ val properties = Properties().apply { defaultProperties() }
 
 val bot = BotFactory.newBot(2741098145, BotAuthorization.byQRCode()) {
     protocol = BotConfiguration.MiraiProtocol.ANDROID_WATCH
-    heartbeatStrategy = BotConfiguration.HeartbeatStrategy.REGISTER
+    heartbeatStrategy = BotConfiguration.HeartbeatStrategy.STAT_HB
     fileBasedDeviceInfo()
     enableContactCache()
 }
