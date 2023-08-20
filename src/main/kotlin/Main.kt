@@ -1,3 +1,4 @@
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -5,6 +6,7 @@ import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
@@ -16,6 +18,7 @@ import net.mamoe.mirai.message.data.AtAll
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.utils.BotConfiguration
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import outlineDataModel.DocumentPresentation
 import outlineDataModel.WebhookBody
 import java.io.FileInputStream
@@ -67,15 +70,8 @@ fun Application.sealingClubBotServer() {
             call.respondText("received '$post'. hello!")
         }
         post("/documents.publish") {
-            val sign = call.request.headers["Outline-Signature"]
-            val logger = LogManager.getLogger("${call.request.httpMethod.value} ${call.request.uri}")
-            logger.info("Signature: $sign")
-
-            val body = call.receiveText()
-            if (!verifySignature(sign, body)) {
-                logger.warn("Unverified signature from '${call.request.headers["X-Real-IP"]}'")
-                return@post
-            }
+            val (body, logger) = prepareWebhook()
+            if (call.isHandled) return@post
 
             val data = Json.decodeFromString<WebhookBody<DocumentPresentation>>(body)
             if (data.event != "documents.publish") return@post
@@ -93,6 +89,21 @@ fun Application.sealingClubBotServer() {
             mainGroup.get().sendMessage(message)
         }
     }
+}
+
+suspend fun <TSubject : Any> PipelineContext<TSubject, ApplicationCall>.prepareWebhook(): Pair<String, Logger> {
+    val sign = call.request.headers["Outline-Signature"]
+    val logger = LogManager.getLogger("${call.request.httpMethod.value} ${call.request.uri}")
+    logger.info("Signature: $sign")
+
+    val body = call.receiveText()
+    if (!verifySignature(sign, body)) {
+        logger.warn("Unverified signature from '${call.request.headers["X-Real-IP"]}'")
+        call.respond(HttpStatusCode.BadRequest, "Unverified signature")
+        finish()
+    }
+
+    return Pair(body, logger)
 }
 
 @OptIn(ExperimentalStdlibApi::class)
