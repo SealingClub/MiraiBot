@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class UserPresentation(
     val id: String,
     val name: String,
-    val avatarUrl: String,
+    val avatarUrl: String?,
     val color: String,
     val isAdmin: Boolean,
     val isSuspended: Boolean,
