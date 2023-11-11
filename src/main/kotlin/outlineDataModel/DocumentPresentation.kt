@@ -9,6 +9,7 @@ data class DocumentPresentation(
     val url: String,
     val urlId: String,
     val title: String,
+    val emoji: String,
     val text: String,
     val tasks: TasksPresentation,
     val createdAt: Instant,
